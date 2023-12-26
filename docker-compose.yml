@@ -1,24 +1,20 @@
 services:
-  zookeeper-1:
-    image: bitnami/zookeeper:3.9.1
-    ports:
-      - "${ZOOKEEPER_1_PORT}:2181"
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
-
   kafka-1:
     image: bitnami/kafka:3.5.2
     ports:
-      - "${KAFKA_1_PORT}:9092"
+      - "${KAFKA_1_INTERNAL_PORT}:9092"
+      - "${KAFKA_1_EXTERNAL_PORT}:9094"
     environment:
-      - KAFKA_ADVERTISED_HOST_NAME=${KAFKA_1_ADVERTISED_HOST_NAME}
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper-1:2181
-    depends_on:
-      - zookeeper-1
-
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-1:9092,EXTERNAL://${KAFKA_1_EXTERNAL_HOST}:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka-1:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
   kafka-ui-1:
     image: provectuslabs/kafka-ui:latest
-    ports:
+    ports:  
       - "${KAFKA_UI_1_PORT}:8080"
     environment:
       - DYNAMIC_CONFIG_ENABLED=true
@@ -37,12 +33,16 @@ services:
   elasticsearch-1:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - "${ELASTICSEARCH_1_EXTERNAL_PORT}:9200"
+      - "${ELASTICSEARCH_1_INTERNAL_PORT}:9300"
     environment:
       - discovery.type=single-node
+      - ELASTIC_USERNAME=${ELASTIC_1_USERNAME}
+      - ELASTIC_PASSWORD=${ELASTIC_1_PASSWORD}
   
   kibana-1:
     image: docker.elastic.co/kibana/kibana:8.11.3
+    ports:
+      - "${KIBANA_1_PORT}:5601"
     depends_on:
       - elasticsearch-1
