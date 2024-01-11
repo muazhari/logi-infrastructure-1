@@ -37,12 +37,17 @@ services:
       - "${ELASTICSEARCH_1_INTERNAL_PORT}:9300"
     environment:
       - discovery.type=single-node
-      - ELASTIC_USERNAME=${ELASTIC_1_USERNAME}
-      - ELASTIC_PASSWORD=${ELASTIC_1_PASSWORD}
+      - http.cors.allow-origin="*"
+      - http.cors.enabled=true
+      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
+      - http.cors.allow-credentials=true
+      - xpack.security.enabled=false
+      - ELASTIC_USERNAME=${ELASTICSEARCH_1_USERNAME}
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_1_PASSWORD}
   
-  kibana-1:
-    image: docker.elastic.co/kibana/kibana:8.11.3
+  dejavu-1:
+    image: appbaseio/dejavu:3.6.0
     ports:
-      - "${KIBANA_1_PORT}:5601"
+      - "${DEJAVU_1_PORT}:1358"
     depends_on:
       - elasticsearch-1
