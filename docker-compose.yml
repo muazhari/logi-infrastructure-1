@@ -41,8 +41,7 @@ services:
       - http.cors.enabled=true
       - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
       - http.cors.allow-credentials=true
-      - xpack.security.enabled=false
-      - ELASTIC_USERNAME=${ELASTICSEARCH_1_USERNAME}
+      - xpack.security.enabled=true
       - ELASTIC_PASSWORD=${ELASTICSEARCH_1_PASSWORD}
   
   dejavu-1:
